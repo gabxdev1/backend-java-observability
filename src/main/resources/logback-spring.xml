@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
-    <springProperty scope="context" name="APP_NAME" source="spring.application.name" defaultValue="app-dev-container"/>
+    <springProperty scope="context" name="APP_NAME" source="spring.application.name" defaultValue="god-java-melhor"/>
 
     <!-- Appender síncrono que escreve em stdout em JSON -->
     <appender name="JSON_STDOUT" class="ch.qos.logback.core.ConsoleAppender">
@@ -11,13 +11,12 @@
             <providers>
                 <!-- timestamp -->
                 <timestamp>
-                    <timeZone>UTC</timeZone>
                 </timestamp>
 
                 <!-- service name -->
                 <pattern>
                     <pattern>
-                        { "service": "${APP_NAME}" }
+                        { "service": "god-java-melhor" }
                     </pattern>
                 </pattern>
 

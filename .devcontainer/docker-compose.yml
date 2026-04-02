@@ -8,6 +8,9 @@ services:
     depends_on:
       - datadog-agent
       - fluent-bit
+    ports:
+      - "8080:8080"
+      - "5005:5005"
     volumes:
       - ..:/workspace:cached
     environment:
