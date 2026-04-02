@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: app-dev-container
+  threads:
+    virtual:
+      enabled: true
+
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  statsd:
+    metrics:
+      export:
+        host: ${DD_AGENT_HOST:localhost}
+        flavor: datadog
+        port: 8125
+        enabled: true
+        buffered: true
+        max-packet-length: 1400
+        polling-frequency: 10s
+        publish-unchanged-meters: true
+        step: 1m
+        protocol: udp

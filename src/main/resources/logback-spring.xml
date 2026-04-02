@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <springProperty scope="context" name="APP_NAME" source="spring.application.name" defaultValue="app-dev-container"/>
+
+    <!-- Appender síncrono que escreve em stdout em JSON -->
+    <appender name="JSON_STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <immediateFlush>false</immediateFlush>
+
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <!-- timestamp -->
+                <timestamp>
+                    <timeZone>UTC</timeZone>
+                </timestamp>
+
+                <!-- service name -->
+                <pattern>
+                    <pattern>
+                        { "service": "${APP_NAME}" }
+                    </pattern>
+                </pattern>
+
+                <!--                <pattern>-->
+                <!--                    <pattern>-->
+                <!--                        { "message": "#tryJson{%message}" }-->
+                <!--                    </pattern>-->
+                <!--                </pattern>-->
+
+                <!-- mensagem (campo "message") -->
+                <message/>
+
+                <!-- nível (campo "level") -->
+                <logLevel/>
+
+                <!-- logger (campo "logger_name") -->
+                <loggerName/>
+
+                <!-- thread (campo "thread_name") -->
+                <threadName/>
+
+                <!-- MDC (inclui correlation_id e também dd.trace_id/span_id se o agent preencher) -->
+                <mdc/>
+
+                <!-- stacktrace quando tiver exception -->
+                <stackTrace/>
+            </providers>
+        </encoder>
+    </appender>
+
+    <!-- Appender assíncrono que encapsula o JSON_STDOUT -->
+    <appender name="ASYNC_JSON_STDOUT" class="ch.qos.logback.classic.AsyncAppender">
+        <!-- Referência ao appender real -->
+        <appender-ref ref="JSON_STDOUT"/>
+
+        <!-- Tamanho da fila de logs -->
+        <queueSize>24000</queueSize>
+
+        <!-- Não descartar logs (se quiser descartar DEBUG/TRACE, dá pra configurar depois) -->
+        <discardingThreshold>0</discardingThreshold>
+
+        <!-- Nunca bloquear a thread de negócio se a fila encher -->
+        <neverBlock>true</neverBlock>
+
+        <!-- Garante que não captura caller data (stack inspection caro) -->
+        <includeCallerData>false</includeCallerData>
+    </appender>
+
+    <!-- Root logger agora usa o appender assíncrono -->
+    <root level="INFO">
+        <appender-ref ref="ASYNC_JSON_STDOUT"/>
+    </root>
+
+</configuration>
