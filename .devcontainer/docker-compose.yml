@@ -37,6 +37,8 @@ services:
         fluentd-address: "localhost:24224"
         tag: "docker.{{.Name}}"
         fluentd-async: "true"
+        # Evita ficar "travado" após restart do fluent-bit.
+        fluentd-async-reconnect-interval: "1s"
 
   datadog-agent:
     image: datadog/agent:7

@@ -15,7 +15,7 @@ management:
   statsd:
     metrics:
       export:
-        host: ${DD_AGENT_HOST:localhost}
+        host: ${DD_AGENT_HOST}
         flavor: datadog
         port: 8125
         enabled: true
