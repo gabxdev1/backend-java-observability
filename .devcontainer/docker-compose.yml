@@ -1,0 +1,73 @@
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    command: sleep infinity
+    working_dir: /workspace
+    depends_on:
+      - datadog-agent
+      - fluent-bit
+    volumes:
+      - ..:/workspace:cached
+    environment:
+      DD_SERVICE: ${DD_SERVICE:-java-app}
+      DD_ENV: ${DD_ENV:-dev}
+      DD_VERSION: ${DD_VERSION:-local}
+      DD_AGENT_HOST: datadog-agent
+      DD_TRACE_AGENT_PORT: "8126"
+      DD_TRACE_AGENT_URL: http://datadog-agent:8126
+      DD_DOGSTATSD_HOST: datadog-agent
+      DD_DOGSTATSD_PORT: "8125"
+      DD_LOGS_INJECTION: "true"
+      JAVA_TOOL_OPTIONS: >-
+        -javaagent:/opt/datadog/dd-java-agent.jar
+        -Ddd.service=${DD_SERVICE:-java-app}
+        -Ddd.env=${DD_ENV:-dev}
+        -Ddd.version=${DD_VERSION:-local}
+        -Ddd.logs.injection=true
+        -Ddd.trace.agent.url=http://datadog-agent:8126
+        -Ddd.dogstatsd.host=datadog-agent
+        -Ddd.dogstatsd.port=8125
+    logging:
+      driver: fluentd
+      options:
+        # O driver roda no Docker daemon, então usa localhost + porta publicada do Fluent Bit.
+        fluentd-address: "localhost:24224"
+        tag: "docker.{{.Name}}"
+        fluentd-async: "true"
+
+  datadog-agent:
+    image: datadog/agent:7
+    container_name: datadog-agent
+    environment:
+      DD_API_KEY: ${DD_API_KEY:-00000000000000000000000000000000}
+      DD_SITE: ${DD_SITE:-datadoghq.com}
+      DD_ENV: ${DD_ENV:-dev}
+      DD_HOSTNAME: ${DD_HOSTNAME:-devcontainer-local}
+      DD_APM_ENABLED: "true"
+      DD_APM_NON_LOCAL_TRAFFIC: "true"
+      DD_DOGSTATSD_NON_LOCAL_TRAFFIC: "true"
+      DD_DOGSTATSD_METRICS_STATS_ENABLE: "true"
+      DD_BIND_HOST: "0.0.0.0"
+      DD_LOGS_ENABLED: "false"
+      DD_PROCESS_AGENT_ENABLED: "false"
+    ports:
+      - "8126:8126"
+      - "8125:8125/udp"
+
+  fluent-bit:
+    image: cr.fluentbit.io/fluent/fluent-bit:3.0
+    container_name: fluent-bit
+    depends_on:
+      - datadog-agent
+    environment:
+      DD_API_KEY: ${DD_API_KEY:-00000000000000000000000000000000}
+      DD_SITE: ${DD_SITE:-datadoghq.com}
+      DD_SERVICE: ${DD_SERVICE:-java-app}
+      DD_ENV: ${DD_ENV:-dev}
+    volumes:
+      - ./fluent-bit/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf:ro
+    command: /fluent-bit/bin/fluent-bit -c /fluent-bit/etc/fluent-bit.conf
+    ports:
+      - "24224:24224"

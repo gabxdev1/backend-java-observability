@@ -1,0 +1,52 @@
+{
+  "name": "Java 21 + Datadog + Fluent Bit",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "runServices": [
+    "app",
+    "datadog-agent",
+    "fluent-bit"
+  ],
+  "workspaceFolder": "/workspace",
+  "shutdownAction": "stopCompose",
+  "postCreateCommand": "java -version && ./mvnw -version",
+  "forwardPorts": [
+    8080,
+    5005,
+    8126,
+    8125
+  ],
+  "portsAttributes": {
+    "8080": {
+      "label": "Spring Boot"
+    },
+    "5005": {
+      "label": "Java Debug (JDWP)"
+    },
+    "8126": {
+      "label": "Datadog APM"
+    },
+    "8125": {
+      "label": "DogStatsD (UDP)"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "vscjava.vscode-java-pack",
+        "vscjava.vscode-maven",
+        "vmware.vscode-spring-boot",
+        "redhat.vscode-yaml",
+        "ms-azuretools.vscode-docker"
+      ],
+      "settings": {
+        "java.configuration.updateBuildConfiguration": "interactive",
+        "java.compile.nullAnalysis.mode": "automatic"
+      }
+    },
+    "jetbrains": {
+      "backend": "IntelliJ"
+    }
+  },
+  "remoteUser": "vscode"
+}
