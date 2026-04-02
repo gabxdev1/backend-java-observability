@@ -34,3 +34,7 @@ build/
 
 # Segredo local do stack de observabilidade.
 .devcontainer/.env
+
+# Certificados corporativos locais (não versionar).
+.devcontainer/certs/*
+!.devcontainer/certs/.gitkeep
